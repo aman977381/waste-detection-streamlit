@@ -3,7 +3,7 @@ import math
 import av
 import numpy as np
 import streamlit as st
-from streamlit_webrtc import webrtc_streamer, RTCConfiguration
+from streamlit_webrtc import webrtc_streamer, RTCConfiguration, WebRtcMode
 from PIL import Image
 from ultralytics import YOLO
 
@@ -52,8 +52,13 @@ def predict(frame):
                             (0, 150, 0), 1)
     return av.VideoFrame.from_ndarray(img, format="bgr24")
 
+RTC_CONFIGURATION = RTCConfiguration(
+    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+)
 
 webrtc_streamer(key='key', video_frame_callback=predict,
-                rtc_configuration=RTCConfiguration(
-                    {"iceServers":[{"urls":["stun:stun.l.google.com:19302"]}]}
-                ))
+                rtc_configuration=RTC_CONFIGURATION,
+                mode=WebRtcMode.SENDRECV,
+                media_stream_constraints={"video": True, "audio": False},
+                async_processing=True
+                )
